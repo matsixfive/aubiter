@@ -5,6 +5,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"modulize-wasm": "node ./wasm/gravity/modulize.js",
+		"wasm": "wasm-pack build ./wasm/gravity --target web && npm run modulize-wasm",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
@@ -18,5 +20,8 @@
 		"typescript": "^5.0.0",
 		"vite": "^4.3.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"vite-plugin-wasm-pack": "^0.1.12"
+	}
 }

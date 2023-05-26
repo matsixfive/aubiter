@@ -10,4 +10,5 @@ crate-type = ["cdylib"]
 
 # deps
 [dependencies]
+vector3 = "1.1.4"
 wasm-bindgen = "0.2.86"

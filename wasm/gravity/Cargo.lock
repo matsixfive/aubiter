@@ -18,6 +18,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "gravity"
 version = "0.1.0"
 dependencies = [
+ "vector3",
  "wasm-bindgen",
 ]
 
@@ -70,6 +71,12 @@ name = "unicode-ident"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15811caf2415fb889178633e7724bad2509101cde276048e013b9def5e51fa0"
+
+[[package]]
+name = "vector3"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "082cc5c946170e905214fe5cac2b9bbb81d790ae632ee7b8c7d736d59cd0827e"
 
 [[package]]
 name = "wasm-bindgen"
