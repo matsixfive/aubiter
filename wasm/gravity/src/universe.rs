@@ -19,6 +19,7 @@ pub struct Universe {
     // height: u32,
     planets: Vec<Planet>,
     edges: Vec<Edge>,
+    speed: f64,
 }
 
 impl Universe {
@@ -54,15 +55,15 @@ impl Universe {
             // let b_accel = force / -b.mass;
 
             self.planets[self.edges[i].a].acceleration =
-                self.planets[self.edges[i].a].acceleration + a_accel * 1000.0;
+                self.planets[self.edges[i].a].acceleration + a_accel;
             self.planets[self.edges[i].b].acceleration =
-                self.planets[self.edges[i].b].acceleration + b_accel * 1000.0;
+                self.planets[self.edges[i].b].acceleration + b_accel;
         }
 
         for i in 0..self.planets.len() {
             let planet = &mut self.planets[i];
-            planet.velocity = planet.velocity + planet.acceleration ;
-            planet.position = planet.position + planet.velocity;
+            planet.velocity = planet.velocity + planet.acceleration * self.speed;
+            planet.position = planet.position + planet.velocity * self.speed;
             planet.acceleration = Vector3::new(0.0, 0.0, 0.0);
         }
     }
@@ -71,6 +72,7 @@ impl Universe {
         Universe {
             planets: vec![],
             edges: vec![],
+            speed: 100000.0,
         }
     }
 
