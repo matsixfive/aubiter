@@ -54,7 +54,7 @@ impl Universe {
 
             a_to_b.normalize();
 
-            log(&format!("{:?} {:?}", a_to_b, a_to_b.magnitude()));
+            // log(&format!("{:?} {:?}", a_to_b, a_to_b.magnitude()));
 
             let a_accel = a_to_b * (b.mass * (6.67e-11 / distance_sqr)); // F = G * (m1 * m2) / r^2
             let b_accel = -a_to_b * (a.mass * (6.67e-11 / distance_sqr)); // F = G * (m1 * m2) / r^2

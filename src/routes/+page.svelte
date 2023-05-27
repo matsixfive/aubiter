@@ -45,8 +45,10 @@
     const universe = Universe.new();
 		universe.set_speed(speed);
 
-		universe.add_planet("earth", Vector3.new(0, 0, 0), Vector3.new(0, 0, 0), 5.972e21, 3.389e6);
-		universe.add_planet("moon", Vector3.new(0, 3844000, 0), Vector3.new(352.2, 0, 0), 7.34767309e19, 3.389e6);
+		// universe.add_planet("earth", Vector3.new(0, 0, 0), Vector3.new(0, 0, 0), 5.972e21, 3.389e6);
+		// universe.add_planet("moon", Vector3.new(0, 3844000, 0), Vector3.new(352.2, 0, 0), 7.34767309e19, 3.389e6);
+		universe.add_planet("1", Vector3.new(0, 844000, 0), Vector3.new(350, 0, 0), 5.972e21, 3.389e6);
+		universe.add_planet("2", Vector3.new(0, -844000, 0), Vector3.new(-350, 0, 0), 5.972e21, 3.389e6);
 
     speedUp = () => {
       universe.set_speed(speed *= 1.25);
