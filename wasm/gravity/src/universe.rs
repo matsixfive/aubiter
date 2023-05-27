@@ -1,5 +1,12 @@
-use vector3::Vector3;
+// use vector3::Vector3;
+use crate::vector3::Vector3;
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
 
 #[derive(Clone, Debug)]
 pub struct Planet {
@@ -15,11 +22,9 @@ pub struct Planet {
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Universe {
-    // width: u32,
-    // height: u32,
     planets: Vec<Planet>,
     edges: Vec<Edge>,
-    speed: f64,
+    speed: u32,
 }
 
 impl Universe {
@@ -32,39 +37,46 @@ impl Universe {
             }
         }
     }
+
+    fn tick_once(&mut self) {
+        for i in 0..self.planets.len() {
+            self.planets[i].acceleration = Vector3::new(0.0, 0.0, 0.0);
+        }
+
+        for i in 0..self.edges.len() {
+            let a = &self.planets[self.edges[i].a];
+            let b = &self.planets[self.edges[i].b];
+
+            let mut a_to_b = b.position - a.position;
+            // let b_to_a = a.position - b.position;
+
+            let distance_sqr = a_to_b.magnitude_sqr();
+
+            a_to_b.normalize();
+
+            log(&format!("{:?} {:?}", a_to_b, a_to_b.magnitude()));
+
+            let a_accel = a_to_b * (b.mass * (6.67e-11 / distance_sqr)); // F = G * (m1 * m2) / r^2
+            let b_accel = -a_to_b * (a.mass * (6.67e-11 / distance_sqr)); // F = G * (m1 * m2) / r^2
+
+            self.planets[self.edges[i].a].acceleration += a_accel;
+            self.planets[self.edges[i].b].acceleration += b_accel;
+        }
+
+        for i in 0..self.planets.len() {
+            let planet = &mut self.planets[i];
+            planet.velocity += planet.acceleration;
+            planet.position += planet.velocity;
+        }
+    }
 }
 
 /// Public methods, exported to JavaScript.
 #[wasm_bindgen]
 impl Universe {
     pub fn tick(&mut self) {
-        for i in 0..self.edges.len() {
-            let a = &self.planets[self.edges[i].a];
-            let b = &self.planets[self.edges[i].b];
-
-            let a_to_b = b.position - a.position;
-            let b_to_a = a.position - b.position;
-
-            let distance_sqr = a_to_b.x * a_to_b.x + a_to_b.y * a_to_b.y + a_to_b.z * a_to_b.z;
-
-            // let force = (a_to_b / distance_sqr.sqrt()) * ((a.mass * b.mass * 6e-11) / distance_sqr); // F = G * (m1 * m2) / r^2
-            let a_accel = a_to_b.normalize() * ((b.mass * 6e-11) / distance_sqr); // F = G * (m1 * m2) / r^2
-            let b_accel = b_to_a.normalize() * ((a.mass * 6e-11) / distance_sqr); // F = G * (m1 * m2) / r^2
-
-            // let a_accel = force / a.mass;
-            // let b_accel = force / -b.mass;
-
-            self.planets[self.edges[i].a].acceleration =
-                self.planets[self.edges[i].a].acceleration + a_accel;
-            self.planets[self.edges[i].b].acceleration =
-                self.planets[self.edges[i].b].acceleration + b_accel;
-        }
-
-        for i in 0..self.planets.len() {
-            let planet = &mut self.planets[i];
-            planet.velocity = planet.velocity + planet.acceleration * self.speed;
-            planet.position = planet.position + planet.velocity * self.speed;
-            planet.acceleration = Vector3::new(0.0, 0.0, 0.0);
+        for _ in 0..self.speed {
+            self.tick_once();
         }
     }
 
@@ -72,21 +84,32 @@ impl Universe {
         Universe {
             planets: vec![],
             edges: vec![],
-            speed: 100000.0,
+            speed: 1,
         }
     }
 
-    pub fn add_planet(&mut self, name: String, pos_x: f64, pos_y: f64, pos_z: f64, vel_x: f64, vel_y: f64, vel_z: f64, mass: f64, radius: f64) {
+    pub fn add_planet(
+        &mut self,
+        name: String,
+        pos: Vector3,
+        vel: Vector3,
+        mass: f64,
+        radius: f64,
+    ) {
         let planet = Planet {
             name,
             mass,
             radius,
-            position: Vector3::new(pos_x, pos_y, pos_z),
-            velocity: Vector3::new(vel_x, vel_y, vel_z),
+            position: pos,
+            velocity: vel,
             acceleration: Vector3::new(0.0, 0.0, 0.0),
         };
         self.planets.push(planet);
         self.build_edges();
+    }
+
+    pub fn set_speed(&mut self, speed: u32) {
+        self.speed = speed;
     }
 
     pub fn render(&self) -> Output {
@@ -97,9 +120,9 @@ impl Universe {
             let out_planet = OutPlanet {
                 name: planet.name.clone(),
                 radius: planet.radius,
-                x: planet.position.x,
-                y: planet.position.y,
-                z: planet.position.z,
+                mass: planet.mass,
+                velocity: planet.velocity,
+                position: planet.position,
             };
             output.planets.push(out_planet);
         }
@@ -141,9 +164,9 @@ impl Output {
 pub struct OutPlanet {
     name: String,
     radius: f64,
-    x: f64,
-    y: f64,
-    z: f64,
+    mass: f64,
+    velocity: Vector3,
+    position: Vector3,
 }
 
 #[wasm_bindgen]
@@ -156,15 +179,15 @@ impl OutPlanet {
         self.radius
     }
 
-    pub fn x(&self) -> f64 {
-        self.x
+    pub fn mass(&self) -> f64 {
+        self.mass
     }
 
-    pub fn y(&self) -> f64 {
-        self.y
+    pub fn velocity(&self) -> Vector3 {
+        self.velocity
     }
 
-    pub fn z(&self) -> f64 {
-        self.z
+    pub fn position(&self) -> Vector3 {
+        self.position
     }
 }

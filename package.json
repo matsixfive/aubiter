@@ -6,7 +6,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "modulize-wasm": "node ./wasm/gravity/modulize.js",
-    "wasm": "wasm-pack build ./wasm/gravity --target web && npm run modulize-wasm",
+    "wasm": "wasm-pack build ./wasm/gravity --target web --release && npm run modulize-wasm",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
