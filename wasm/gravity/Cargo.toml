@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 
 # deps
 [dependencies]
+itertools = "0.10.5"
 # vector3 = "1.1.4"
 # nalgebra = "0.32.2"
 wasm-bindgen = "0.2.86"

@@ -37,7 +37,7 @@
 	let speed = 1;
 	let tps = 0
 
-	let framerate = 60;
+	let framerate = 60; // temp inital value
 
   onMount(async () => {
     await init(); // init initializes memory addresses needed by WASM and that will be used by JS/TS
@@ -47,8 +47,9 @@
 
 		// universe.add_planet("earth", Vector3.new(0, 0, 0), Vector3.new(0, 0, 0), 5.972e21, 3.389e6);
 		// universe.add_planet("moon", Vector3.new(0, 3844000, 0), Vector3.new(352.2, 0, 0), 7.34767309e19, 3.389e6);
-		universe.add_planet("1", Vector3.new(0, 844000, 0), Vector3.new(350, 0, 0), 5.972e21, 3.389e6);
-		universe.add_planet("2", Vector3.new(0, -844000, 0), Vector3.new(-350, 0, 0), 5.972e21, 3.389e6);
+		universe.add_planet("earth", Vector3.new(0, 844000, 0), Vector3.new(350, 0, 0), 5.972e21, 3.389e6);
+		universe.add_planet("mars", Vector3.new(0, -844000, 0), Vector3.new(-350, 0, 0), 5.972e21, 3.389e6);
+		universe.add_planet("moon", Vector3.new(70000, 384400, 0), Vector3.new(1182, 100, 0), 6.39e13, 2.389e6);
 
     speedUp = () => {
       universe.set_speed(speed *= 1.25);
@@ -59,7 +60,7 @@
 			}
 		};
 		addPlanet = () => {
-			universe.add_planet("new", Vector3.new(0, 3844000, 0), Vector3.new(1022, 0, 0), 6.39e23, 3.389e6);
+			universe.add_planet("new", Vector3.new(0, 384400, 0), Vector3.new(1022, 0, 0), 6.39e13, 3.389e6);
 		};
 
 
