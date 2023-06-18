@@ -1,15 +1,20 @@
-use std::ops::IndexMut;
-
-// use vector3::Vector3;
 use crate::vector3::Vector3;
-use itertools::Itertools;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+    // #[wasm_bindgen(js_namespace = console)]
+    // fn time(s: &str);
+    // #[wasm_bindgen(js_namespace = console)]
+    // fn timeEnd(s: &str);
 }
+
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
 
 #[derive(Clone, Debug)]
 pub struct Planet {
@@ -26,82 +31,78 @@ pub struct Planet {
 #[derive(Debug)]
 pub struct Universe {
     planets: Vec<Planet>,
-    // edges: Vec<Edge>,
     speed: u32,
 }
 
 impl Universe {
-    // fn build_edges(&mut self) {
-    //     for i in 0..self.planets.len() {
-    //         for j in 0..self.planets.len() {
-    //             if i > j {
-    //                 self.edges.push(Edge { a: i, b: j });
-    //             }
-    //         }
-    //     }
-    // }
+    const G: f64 = 6.67e-11;
 
     fn tick_once(&mut self) {
-        self.planets.iter_mut().for_each(|p| p.acceleration = Vector3::new(0.0, 0.0, 0.0));
+        // reset acceleration
+        self.planets.iter_mut().for_each(|planet| planet.acceleration = Vector3::new(0.0, 0.0, 0.0));
 
-        // for i in 0..self.edges.len() {
-        //     if i > self.edges.len() {
-        //         break;
-        //     }
-        //     // let a = &self.planets[self.edges[i].a];
-        //     // let b = &self.planets[self.edges[i].b];
-        //
-        //     let mut a_to_b = (&self.planets[self.edges[i].b]).position - (&self.planets[self.edges[i].a]).position;
-        //     // let b_to_a = a.position - b.position;
-        //
-        //     let collision_distance_sqr = (&self.planets[self.edges[i].a]).radius * (&self.planets[self.edges[i].a]).radius + (&self.planets[self.edges[i].b]).radius * (&self.planets[self.edges[i].b]).radius;
-        //
-        //     let distance_sqr = a_to_b.magnitude_sqr();
-        //
-        //     // if distance_sqr < collision_distance_sqr {
-        //     //     if self.edges[i].a > self.edges[i].b {
-        //     //         self.planets.remove(self.edges[i].a);
-        //     //         self.planets.remove(self.edges[i].b);
-        //     //     } else {
-        //     //         self.planets.remove(self.edges[i].b);
-        //     //         self.planets.remove(self.edges[i].a);
-        //     //     }
-        //     //
-        //     //     // self.edges.remove(i);
-        //     //     // self.build_edges();
-        //     //     continue;
-        //     // }
-        //
-        //     a_to_b.normalize();
-        //
-        //     // log(&format!("{:?} {:?}", a_to_b, a_to_b.magnitude()));
-        //     //
-        //     let accel_mag = a_to_b * (6.67e-11 / distance_sqr) ;
-        //
-        //     let a_accel = accel_mag * (&self.planets[self.edges[i].a]).mass; // F = G * (m1 * m2) / r^2
-        //     let b_accel = accel_mag * (&self.planets[self.edges[i].b]).mass; // F = G * (m1 * m2) / r^2
-        //
-        //     self.planets[self.edges[i].a].acceleration += a_accel;
-        //     self.planets[self.edges[i].b].acceleration += b_accel;
-        // }
+        // calculate new acceleration
         for i in 0..self.planets.len() {
-            {
-                let a = &mut self.planets[i];
-                a.mass += 1.0;
-            }
-
             for j in (i + 1)..self.planets.len() {
-                let b = &mut self.planets[j];
-                b.mass += 2.0;
+                let a = &self.planets[i];
+                let b = &self.planets[j];
+
+                let mut a_to_b = b.position - a.position;
+
+                let distance_sqr = a_to_b.magnitude_sqr();
+                if distance_sqr == 0.0 {
+                    continue;
+                }
+
+                a_to_b.normalize();
+
+                let accel_mag = a_to_b * (Self::G / distance_sqr);
+
+                let a_accel = accel_mag * a.mass; // F = G * (m1 * m2) / r^2
+                let b_accel = -accel_mag * b.mass; // F = G * (m1 * m2) / r^2
+
+                self.planets[i].acceleration += a_accel;
+                self.planets[j].acceleration += b_accel;
             }
         }
 
-        for i in 0..self.planets.len() {
-
-            let planet = &mut self.planets[i];
+        // calculate new velocity and position
+        self.planets.iter_mut().for_each(|planet| {
             planet.velocity += planet.acceleration;
             planet.position += planet.velocity;
+        });
+
+        // check for collisions
+        let mut to_remove: Vec<usize> = vec![];
+        for i in 0..self.planets.len() {
+            for j in (i + 1)..self.planets.len() {
+                let a = &self.planets[i];
+                let b = &self.planets[j];
+
+                let distance_sqr = (b.position - a.position).magnitude_sqr();
+                let radius = a.radius + b.radius;
+
+                // console_log!("{} {} {} {}", a.name, b.name, distance_sqr, radius * radius);
+
+                if distance_sqr < radius * radius {
+                    // add to `remove` list in sorted order (no duplicates)
+                    match to_remove.binary_search(&i) {
+                        Ok(_) => {}
+                        Err(pos) => to_remove.insert(pos, i),
+                    }
+                    match to_remove.binary_search(&j) {
+                        Ok(_) => {}
+                        Err(pos) => to_remove.insert(pos, j),
+                    }
+                }
+            }
         }
+
+        // remove collided planets
+        to_remove.sort(); // should already be sorted, but just in case
+        to_remove.iter().rev().for_each(|&i| {
+            self.planets.remove(i);
+        });
     }
 }
 
@@ -117,7 +118,6 @@ impl Universe {
     pub fn new() -> Universe {
         Universe {
             planets: vec![],
-            // edges: vec![],
             speed: 1,
         }
     }
@@ -159,12 +159,6 @@ impl Universe {
     pub fn as_string(&self) -> String {
         format!("{:?}", self)
     }
-}
-
-#[derive(Debug)]
-struct Edge {
-    a: usize,
-    b: usize,
 }
 
 #[wasm_bindgen]

@@ -8,3 +8,4 @@ const packageJSON = JSON.parse(String(content));
 packageJSON["type"] = "module";
 
 writeFileSync(dirName + "package.json", JSON.stringify(packageJSON));
+console.log("package.json updated");
