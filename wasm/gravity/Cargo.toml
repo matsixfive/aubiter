@@ -9,7 +9,17 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 3
+lto = true
+debug = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+
 
 # deps
 [dependencies]

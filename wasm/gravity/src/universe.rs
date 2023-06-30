@@ -15,7 +15,6 @@ macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
-
 #[derive(Clone, Debug)]
 pub struct Planet {
     pub name: String,
@@ -115,6 +114,7 @@ impl Universe {
         }
     }
 
+    #[wasm_bindgen(constructor)]
     pub fn new() -> Universe {
         Universe {
             planets: vec![],
@@ -134,6 +134,12 @@ impl Universe {
         self.planets.push(planet);
     }
 
+    #[wasm_bindgen(getter)]
+    pub fn speed(&self) -> u32 {
+        self.speed
+    }
+
+    #[wasm_bindgen(setter)]
     pub fn set_speed(&mut self, speed: u32) {
         self.speed = speed;
     }
@@ -173,6 +179,7 @@ impl Output {
         self.planets[index].clone()
     }
 
+    #[wasm_bindgen(getter)]
     pub fn length(&self) -> usize {
         self.planets.len()
     }
@@ -191,22 +198,27 @@ pub struct OutPlanet {
 
 #[wasm_bindgen]
 impl OutPlanet {
+    #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.name.clone()
     }
 
+    #[wasm_bindgen(getter)]
     pub fn radius(&self) -> f64 {
         self.radius
     }
 
+    #[wasm_bindgen(getter)]
     pub fn mass(&self) -> f64 {
         self.mass
     }
 
+    #[wasm_bindgen(getter)]
     pub fn velocity(&self) -> Vector3 {
         self.velocity
     }
 
+    #[wasm_bindgen(getter)]
     pub fn position(&self) -> Vector3 {
         self.position
     }

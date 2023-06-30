@@ -6,8 +6,9 @@
     "dev": "vite dev",
     "build": "vite build",
     "modulize-wasm": "node ./wasm/gravity/modulize.js",
-    "wasm": "wasm-pack build ./wasm/gravity --target web && npm run modulize-wasm",
-		"wasm:watch": "onchange \"./wasm/gravity/src/**/*\" -- npm run wasm",
+    "wasm:dev": "wasm-pack build ./wasm/gravity --target web --debug && npm run modulize-wasm",
+    "wasm": "wasm-pack build ./wasm/gravity --target web --release && npm run modulize-wasm",
+		"wasm:watch": "onchange -i \"./wasm/gravity/src/**/*\" -- npm run wasm:dev",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"

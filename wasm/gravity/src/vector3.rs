@@ -4,13 +4,14 @@ use std::ops::{Add, Sub, Mul, Neg, AddAssign, SubAssign};
 #[derive(Copy, Clone, Debug)]
 #[wasm_bindgen]
 pub struct Vector3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+    x: f64,
+    y: f64,
+    z: f64,
 }
 
 #[wasm_bindgen]
 impl Vector3 {
+    #[wasm_bindgen(constructor)]
     pub fn new(x:f64, y:f64, z:f64) -> Vector3 {
         Vector3 {
             x,
@@ -19,14 +20,17 @@ impl Vector3 {
         }
     }
 
+    #[wasm_bindgen(getter)]
     pub fn x(&self) -> f64 {
         self.x
     }
 
+    #[wasm_bindgen(getter)]
     pub fn y(&self) -> f64 {
         self.y
     }
 
+    #[wasm_bindgen(getter)]
     pub fn z(&self) -> f64 {
         self.z
     }
