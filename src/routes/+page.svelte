@@ -33,8 +33,10 @@
 
 	let speedUp = () => {};
 	let speedDown = () => {};
+	let stop = () => {};
 	let setSpeed = (speed:number) => {};
 	let addPlanet = () => {};
+	let tick = (amount: number) => {};
 	let speed = 1;
 	let tps = 0
 
@@ -49,14 +51,11 @@
 		const universe = new Universe;
 		universe.speed = speed;
 
-		// universe.add_planet("earth", new Vector3(0, 0, 0), new Vector3(0, 0, 0), 5.972e21, 3.389e6);
-		// universe.add_planet("moon", new Vector3(0, 3844000, 0), new Vector3(352.2, 0, 0), 7.34767309e19, 3.389e6);
-		universe.add_planet("earth", new Vector3(152.02e9, 0, 0), new Vector3(0, -29951.68, 0), 5.972e24, 6371e3);
-		// universe.add_planet("earth1", new Vector3(0, 804000, 0), new Vector3(800, 0, 0), 5.972e21, 100000);
-		universe.add_planet("sun", new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1.989e30, 696340e3);
-		// universe.add_planet("mars1", new Vector3(0, -804000, 0), new Vector3(-800, 0, 0), 5.972e21, 100000);
-		// universe.add_planet("moon", new Vector3(70000, 384400, 0), new Vector3(1182, 100, 0), 6.39e13, 100000);
+		// universe.add_planet("earth", new Vector3(152.02e9, 0, 0), new Vector3(0, -29951.68, 0), 5.972e24, 6371e3);
+		// universe.add_planet("sun", new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1.989e30, 696340e3);
 
+		universe.add_planet("planet1", new Vector3(0, 9e7, 0), new Vector3(0, 0, 0), 1e27, 2e7);
+		universe.add_planet("planet2", new Vector3(0, -9e7, 0), new Vector3(-1e4, 0, 0), 1e27, 2e7);
 
 		speedUp = () => {
 			if (speed === 0 ) {
@@ -68,6 +67,9 @@
 		speedDown = () => {
 			setSpeed(speed = Math.floor(speed / 1.25));
 		};
+		stop = () => {
+			setSpeed(speed = 0);
+		};
 		setSpeed = (speed: number) => {
 			if (speed < 0) return;
 			universe.speed = speed;
@@ -75,6 +77,14 @@
 		};
 		addPlanet = () => {
 			universe.add_planet(Date.now().toString(), new Vector3(0, 384400, 0), new Vector3(0, 0, 0), 6.39e13, 3.389e6);
+		};
+		tick = (amount: number) => {
+			const speed = universe.speed;
+			setSpeed(amount);
+			universe.tick();
+			const render = universe.render();
+			output = buildArray(render);
+			setSpeed(speed);
 		};
 	
 		let lastDate = performance.now();
@@ -117,18 +127,26 @@
 	$: speed = Math.round(speed * 100) / 100;
 	$: setSpeed(speed);
 
-	let zoom = 510000000;
-	let sizeZoom = 100;
+	let zoom = 300000;
+	let sizeZoom = 1;
 </script>
 
 <div>
 	{#if output}
 		<div style="position:relative; width:100vmin;height:100vmin">
 			{Math.round(displayFramerate)}fps
-			<button on:click={addPlanet}>Add Planet</button>
+			<br />
+			<!-- button on:click={addPlanet}>Add Planet</button -->
+			<!-- br / -->
+			<button on:click={() => tick(1)}>Tick x1</button>
+			<button on:click={() => tick(10)}>Tick x10</button>
+			<button on:click={() => tick(100)}>Tick x100</button>
+			<button on:click={() => tick(1000)}>Tick x1000</button>
+			<br />
 			{#each output as planet}
 				<div>{planet.name}: ({Math.round(Math.pow((Math.pow(planet.velocity.x, 2) + Math.pow(planet.velocity.y, 2)), 0.5))})</div>
 			{/each}
+			<button on:click={stop}>pause</button>
 			<button on:click={speedDown}>{"<<"}</button>
 				<input bind:value={speed} type="number"/>x
 			<button on:click={speedUp}>{">>"}</button>

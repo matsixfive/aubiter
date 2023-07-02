@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
-use std::ops::{Add, Sub, Mul, Neg, AddAssign, SubAssign};
+use std::ops::{Add, Sub, Mul, Neg, AddAssign, SubAssign, Div};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Default)]
 #[wasm_bindgen]
 pub struct Vector3 {
     x: f64,
@@ -64,21 +64,21 @@ impl Vector3 {
 impl Add for Vector3 {
     type Output = Vector3;
 
-    fn add(self, other: Vector3) -> Vector3 {
+    fn add(self, rhs: Vector3) -> Vector3 {
         Vector3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         }
     }
 }
 
 impl AddAssign for Vector3 {
-    fn add_assign(&mut self, other: Vector3) {
+    fn add_assign(&mut self, rhs: Vector3) {
         *self = Vector3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         } 
     }
 }
@@ -86,21 +86,21 @@ impl AddAssign for Vector3 {
 impl Sub for Vector3 {
     type Output = Vector3;
 
-    fn sub(self, other: Vector3) -> Vector3 {
+    fn sub(self, rhs: Vector3) -> Vector3 {
         Vector3 {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         }
     }
 }
 
 impl SubAssign for Vector3 {
-    fn sub_assign(&mut self, other: Vector3) {
+    fn sub_assign(&mut self, rhs: Vector3) {
         *self = Vector3 {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         } 
     }
 }
@@ -108,11 +108,23 @@ impl SubAssign for Vector3 {
 impl Mul<f64> for Vector3 {
     type Output = Vector3;
 
-    fn mul(self, other: f64) -> Vector3 {
+    fn mul(self, rhs: f64) -> Vector3 {
         Vector3 {
-            x: self.x * other,
-            y: self.y * other,
-            z: self.z * other,
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        } 
+    }
+}
+
+impl Div<f64> for Vector3 {
+    type Output = Vector3;
+
+    fn div(self, rhs: f64) -> Vector3 {
+        Vector3 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
         } 
     }
 }
